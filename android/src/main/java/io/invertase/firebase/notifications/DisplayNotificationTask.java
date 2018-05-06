@@ -51,13 +51,6 @@ public class DisplayNotificationTask extends AsyncTask<Void, Void, Void> {
   protected Void doInBackground(Void... voids) {
     try {
       Class intentClass = getMainActivityClass();
-      if (intentClass == null) {
-        if (promise != null) {
-          promise.reject("notification/display_notification_error", "Could not find main activity class");
-        }
-        return null;
-      }
-
       Bundle android = notification.getBundle("android");
 
       String channelId = android.getString("channelId");
@@ -325,7 +318,12 @@ public class DisplayNotificationTask extends AsyncTask<Void, Void, Void> {
   }
 
   private PendingIntent createIntent(Class intentClass, Bundle notification, String action) {
-    Intent intent = new Intent(context, intentClass);
+    Intent intent = new Intent();
+    if (intentClass != null) {
+      intent.setClass(context, intentClass);
+    } else {
+      intent.addCategory(Intent.CATEGORY_LAUNCHER);
+    }
     intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
     intent.putExtras(notification);
 
